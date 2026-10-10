@@ -1,341 +1,302 @@
-# Parte I — Fundamentos da Tributação de Investimentos
+# Aula 1 — Fundamentos da tributação de investimentos
 
-> Material de estudo voltado para desenvolvimento e back office de instituições financeiras.
->
-> **Versão de referência:** outubro de 2026
+Nesta primeira aula, o objetivo não é decorar alíquotas. Quero que você consiga olhar para uma movimentação financeira e responder:
 
----
+**“Qual foi o rendimento? Houve fato gerador? Qual é a base de cálculo? Quem calcula o imposto? Quem retém? Quanto fica líquido?”**
 
-# 1. Objetivo
+Essas perguntas vão se repetir em praticamente todos os produtos que estudarmos.
 
-Antes de estudar CDB, Tesouro, ações, fundos, FII ou derivativos, é necessário dominar os conceitos fundamentais utilizados na tributação.
+As regras que vou usar aqui foram conferidas nas fontes da Receita Federal vigentes em 2026. Para renda variável, por exemplo, continuam documentadas as alíquotas de **15% para operações comuns e 20% para day trade**.
 
-Ao final desta parte, você deve conseguir analisar uma operação financeira e identificar:
+Referência:
 
-- principal;
-- saldo bruto;
-- rendimento;
-- ganho ou perda;
-- fato gerador;
-- base de cálculo;
-- alíquota;
-- IR;
-- IRRF;
-- imposto devido;
-- saldo líquido;
-- custo de aquisição;
-- período de apuração;
-- compensação de prejuízos;
-- imposto provisionado;
-- imposto realizado.
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1
 
 ---
 
-# 2. Patrimônio, principal e saldo
+## 1. Primeiro: patrimônio não é rendimento
 
-## 2.1 Principal
-
-Principal é o capital inicialmente investido.
-
-Exemplo:
+Imagine que um cliente aplique:
 
 ```text
-Aplicação inicial = R$ 100.000
+R$ 100.000
 ```
 
-Neste caso:
+Depois de algum tempo, sua posição vale:
 
 ```text
-Principal = R$ 100.000
+R$ 110.000
 ```
 
----
-
-## 2.2 Saldo bruto
-
-Saldo bruto é o valor da posição antes de considerar os impostos incidentes sobre o rendimento.
-
-Exemplo:
+Temos três informações diferentes:
 
 ```text
-Principal              R$ 100.000
-Rendimento acumulado   R$  10.000
----------------------------------
-Saldo bruto            R$ 110.000
+Capital aplicado   = R$ 100.000
+Saldo bruto        = R$ 110.000
+Rendimento bruto   = R$  10.000
 ```
 
-Podemos representar:
+Ou:
 
-```text
-Saldo bruto = Principal + Rendimento bruto
-```
-
----
-
-# 3. Rendimento
-
-Rendimento representa a remuneração produzida pelo capital.
-
-Em uma situação simplificada:
-
-```text
-Rendimento = Saldo atual - Principal
-```
-
-Exemplo:
-
-```text
-Principal      R$ 100.000
-Saldo bruto    R$ 110.000
-```
-
-Logo:
-
-```text
-Rendimento = 110.000 - 100.000
-
-Rendimento = R$ 10.000
-```
-
-Um erro comum é calcular o imposto sobre o saldo total.
-
-Normalmente, em uma aplicação tributável, o foco está no **rendimento**, e não no capital originalmente investido.
-
----
-
-# 4. Rendimento bruto e rendimento líquido
-
-## Rendimento bruto
-
-Valor produzido antes dos impostos.
-
-## Rendimento líquido
-
-Valor restante depois dos impostos aplicáveis.
-
-Exemplo:
-
-```text
-Rendimento bruto        R$ 10.000
-IR                     -R$  2.000
----------------------------------
-Rendimento líquido      R$  8.000
-```
-
-Assim:
-
-```text
-Saldo líquido = Principal + Rendimento líquido
-```
-
-No exemplo:
-
-```text
-100.000 + 8.000 = R$ 108.000
-```
-
----
-
-# 5. Saldo bruto e saldo líquido
-
-Considere:
-
-```text
-Principal                 R$ 100.000
-Rendimento bruto          R$  10.000
-------------------------------------
-Saldo bruto               R$ 110.000
-
-IR                        R$   2.000
-------------------------------------
-Saldo líquido             R$ 108.000
-```
+\[
+Rendimento = SaldoAtual - CapitalAplicado
+\]
 
 Portanto:
 
-```text
-Saldo bruto != Saldo líquido
-```
+\[
+110.000 - 100.000 = 10.000
+\]
 
-Isso parece simples, mas é extremamente importante em sistemas financeiros.
+Parece trivial, mas essa separação é fundamental.
 
----
+O IR normalmente **não incide sobre os R$ 110.000**.
 
-# 6. O termo "saldo" pode ser ambíguo
-
-Em sistemas de back office, a palavra **saldo** pode representar coisas diferentes.
-
-Exemplos:
-
-```text
-Saldo contábil
-Saldo financeiro
-Saldo bruto
-Saldo líquido
-Saldo disponível
-Saldo bloqueado
-Saldo em liquidação
-Saldo de custódia
-```
-
-Portanto, ao trabalhar com APIs, bancos de dados ou regras de negócio, evite campos genéricos como:
-
-```text
-balance
-```
-
-quando o domínio exige algo mais específico.
-
-É preferível algo como:
-
-```text
-gross_balance
-net_balance
-available_balance
-blocked_balance
-settled_balance
-```
+O que nos interessa inicialmente são os **R$ 10.000 de rendimento**.
 
 ---
 
-# 7. Fato gerador
+# 2. Saldo bruto
 
-Fato gerador é o acontecimento previsto na legislação que dá origem à obrigação tributária.
+Vamos definir formalmente.
 
-Uma valorização econômica não significa necessariamente que o imposto já tenha sido efetivamente retido ou realizado.
+**Saldo bruto** é o valor da posição antes de descontarmos eventuais impostos relacionados ao rendimento.
 
-Considere:
+Exemplo:
 
 ```text
 Aplicação inicial       R$ 100.000
-Valor atualizado        R$ 108.000
+Rendimento acumulado    R$  10.000
+----------------------------------
+Saldo bruto             R$ 110.000
 ```
 
-Existe:
+Em um sistema você poderia encontrar algo conceitualmente semelhante a:
 
 ```text
-Rendimento econômico = R$ 8.000
+Principal
+GrossIncome
+GrossBalance
 ```
 
-Mas ainda precisamos perguntar:
+Ou:
 
 ```text
-Houve resgate?
-Houve vencimento?
-Houve alienação?
-Houve amortização?
-Houve distribuição?
-Houve outro evento tributável?
+principal         = 100000
+gross_income      = 10000
+gross_balance     = 110000
 ```
 
-A Receita Federal relaciona, entre os rendimentos de aplicações financeiras de renda fixa, eventos como:
-
-- alienação;
-- liquidação total ou parcial;
-- resgate;
-- cessão;
-- repactuação;
-- rendimentos periódicos;
-- outras formas de remuneração previstas.
+Mas isso ainda não significa que o cliente possui R$ 110.000 líquidos disponíveis depois da tributação.
 
 ---
 
-# 8. Posição, movimentação e evento tributário
+# 3. Rendimento bruto
 
-Esses conceitos não devem ser confundidos.
+O **rendimento bruto** representa quanto o capital produziu antes da tributação.
+
+No nosso exemplo:
+
+```text
+Capital       = R$ 100.000
+Saldo bruto   = R$ 110.000
+
+Rendimento    = R$ 10.000
+```
+
+Agora começa a pergunta tributária:
+
+> Esses R$ 10 mil são tributáveis?
+
+A resposta depende do **produto** e de outras condições.
+
+Por exemplo, renda fixa tributável pode ter IR.
+
+Já certas aplicações possuem rendimentos isentos para pessoa física.
+
+É por isso que futuramente nossa `TaxRule` não poderá simplesmente olhar para o valor do rendimento.
+
+Ela precisará saber algo como:
+
+```text
+Produto
+Tipo de investidor
+Data de aplicação
+Data do evento
+Tipo de evento
+Prazo
+Regime tributário
+```
+
+---
+
+# 4. Fato gerador
+
+Este é um dos conceitos mais importantes de toda a trilha.
+
+**Fato gerador** é o acontecimento previsto pela regra tributária que faz surgir a obrigação tributária.
+
+Não basta existir valorização.
+
+Precisamos saber se ocorreu o evento que provoca a incidência do imposto.
+
+Isso será extremamente importante no back office.
+
+Imagine um CDB:
+
+```text
+01/01
+Aplicação: R$ 100.000
+
+↓
+
+30/06
+Valor atualizado: R$ 108.000
+```
+
+A aplicação valorizou R$ 8.000.
+
+Mas agora precisamos perguntar:
+
+> Houve resgate, vencimento ou algum outro evento tributável?
+
+A Receita lista, para aplicações financeiras de renda fixa, eventos como **alienação, liquidação total ou parcial, resgate, cessão ou repactuação**, entre outras situações que podem gerar rendimento.
+
+Referência:
+
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/preenchimento/manual-mir/rendimentos/rendimentos-do-capital
+
+Essa diferença é importantíssima.
+
+---
+
+# 5. Rendimento econômico × evento tributário
+
+Imagine:
+
+```text
+Aplicado                  R$100.000
+Valor atualizado          R$110.000
+Rendimento econômico       R$10.000
+```
+
+Podemos ter uma valorização da posição.
+
+Mas o sistema tributário precisa saber:
+
+```text
+O rendimento foi realizado?
+        ↓
+Qual foi o evento?
+        ↓
+Esse evento é tributável?
+```
+
+Isso nos leva a uma ideia muito útil:
 
 ```text
 POSIÇÃO
-   !=
+≠
 MOVIMENTAÇÃO
-   !=
+≠
 EVENTO TRIBUTÁRIO
 ```
 
-## Posição
-
-Representa aquilo que o investidor possui em determinado momento.
-
-## Movimentação
-
-Representa uma alteração registrada no ativo ou no financeiro.
-
-## Evento tributário
-
-Evento que pode produzir consequência fiscal.
-
-Uma movimentação pode alterar a posição sem necessariamente produzir imediatamente uma obrigação tributária.
+Essa distinção vai aparecer bastante quando entrarmos em fundos, títulos, ações e eventos corporativos.
 
 ---
 
-# 9. Base de cálculo
+# 6. Base de cálculo
 
-Base de cálculo é o valor sobre o qual a alíquota será aplicada.
+Agora chegamos ao valor sobre o qual o imposto será calculado.
 
-De forma simplificada:
+Chamamos isso de:
+
+**base de cálculo.**
+
+Simplificando:
 
 ```text
 Imposto = Base de cálculo × Alíquota
 ```
 
-Exemplo:
+Suponha que um investimento tenha:
 
 ```text
-Aplicação          R$ 100.000
-Resgate            R$ 110.000
-Rendimento         R$  10.000
+Aplicação       R$100.000
+Resgate         R$110.000
+Rendimento       R$10.000
 ```
 
 Se todo o rendimento for tributável:
 
 ```text
-Base de cálculo = R$ 10.000
+Base de cálculo = R$10.000
 ```
 
-e não:
+E não:
 
 ```text
-Base de cálculo = R$ 110.000
+Base de cálculo = R$110.000
 ```
+
+Essa diferença é essencial.
 
 ---
 
-# 10. Alíquota
+# 7. Alíquota
 
-Alíquota é o percentual utilizado para determinar o imposto.
+A alíquota é simplesmente a porcentagem aplicada à base de cálculo.
 
-Exemplo:
+Imagine:
 
 ```text
-Base de cálculo = R$ 10.000
+Base de cálculo = R$10.000
 Alíquota        = 20%
 ```
 
-Cálculo:
+Então:
 
-```text
-IR = 10.000 × 0,20
-
-IR = R$ 2.000
-```
+\[
+IR = 10.000 \times 0,20
+\]
 
 Resultado:
 
 ```text
-Rendimento bruto        R$ 10.000
-IR                     -R$  2.000
----------------------------------
-Rendimento líquido      R$  8.000
+IR = R$2.000
 ```
+
+Consequentemente:
+
+```text
+Rendimento bruto        R$10.000
+IR                     -R$ 2.000
+--------------------------------
+Rendimento líquido      R$ 8.000
+```
+
+E:
+
+```text
+Principal               R$100.000
+Rendimento líquido      R$  8.000
+---------------------------------
+Saldo líquido           R$108.000
+```
+
+Agora começamos a ter uma cadeia completa.
 
 ---
 
-# 11. Fluxo tributário básico
+# 8. Primeiro modelo mental
+
+Guarde isto:
 
 ```text
 Capital
    ↓
-Rendimento / Ganho
+Rendimento
    ↓
 Evento
    ↓
@@ -350,48 +311,65 @@ Imposto
 Rendimento líquido
 ```
 
-Esse fluxo deve ser utilizado como ponto de partida para qualquer produto.
+Eu gostaria que isso se tornasse quase automático para você.
 
 ---
 
-# 12. IR e IRRF
+# 9. IRRF
 
-## 12.1 IR
+Agora entra outro conceito muito importante:
 
-IR representa o Imposto sobre a Renda apurado segundo as regras aplicáveis.
+**IRRF = Imposto sobre a Renda Retido na Fonte.**
 
-## 12.2 IRRF
+Isso significa que outra entidade realiza a retenção do imposto.
 
-IRRF significa:
+Por exemplo, em várias aplicações financeiras existe uma fonte pagadora responsável pela retenção.
 
-> Imposto sobre a Renda Retido na Fonte.
+Isso é diferente de simplesmente dizer:
 
-Nesse caso, existe uma fonte responsável por efetuar a retenção prevista na legislação.
+> “o cliente deve imposto”.
 
-É importante diferenciar:
+Podemos ter:
 
 ```text
-Imposto calculado
-Imposto retido
-Imposto a recolher
+Imposto devido
 ```
 
-Eles não são necessariamente o mesmo valor.
+e:
+
+```text
+Imposto já retido
+```
+
+São conceitos diferentes.
 
 ---
 
-# 13. IRRF versus imposto devido
+# 10. IRRF × IR devido
 
-Exemplo conceitual:
+Essa diferença é fundamental no mercado financeiro.
+
+Considere:
 
 ```text
-Imposto apurado          R$ 1.500
-IRRF aproveitável       -R$    50
----------------------------------
-Saldo de imposto         R$ 1.450
+Imposto apurado          R$1.500
+IRRF já retido           R$   50
 ```
 
-Em sistemas, podemos encontrar conceitos semelhantes a:
+Então pode existir algo conceitualmente semelhante a:
+
+```text
+Imposto a recolher =
+Imposto apurado - IRRF aproveitável
+```
+
+Nesse exemplo simplificado:
+
+```text
+1.500 - 50 = R$1.450
+```
+
+Por isso você provavelmente encontrará em sistemas financeiros estruturas diferentes para:
 
 ```text
 TaxCalculated
@@ -399,229 +377,377 @@ TaxWithheld
 TaxDue
 ```
 
-Esses campos devem possuir significados bem definidos.
+Eles não representam necessariamente a mesma coisa.
 
 ---
 
-# 14. Exemplo de renda fixa
+# 11. Um ótimo exemplo disso são as ações
 
-Considere:
+Vamos comparar renda fixa e ações.
 
-```text
-Aplicação    R$ 100.000
-Resgate      R$ 110.000
-```
-
-Rendimento:
+Imagine:
 
 ```text
-110.000 - 100.000 = R$ 10.000
+Compra de ações: R$40.000
+Venda:            R$50.000
 ```
 
-Suponha, apenas para o exemplo, uma alíquota aplicável de 20%.
+Ignorando custos por enquanto:
 
 ```text
-IR = 10.000 × 20%
+Ganho líquido = 50.000 - 40.000
 
-IR = R$ 2.000
+Ganho = R$10.000
 ```
 
-Resultado:
+Para uma operação comum tributável:
 
 ```text
-Principal               R$ 100.000
-Rendimento bruto        R$  10.000
-IR                     -R$   2.000
-----------------------------------
-Rendimento líquido      R$   8.000
-Saldo líquido           R$ 108.000
+Alíquota = 15%
 ```
 
-Nas aplicações de renda fixa em geral, a Receita Federal publica atualmente a tabela regressiva:
+Então:
 
-| Prazo | Alíquota |
-|---|---:|
-| Até 180 dias | 22,5% |
-| De 181 a 360 dias | 20,0% |
-| De 361 a 720 dias | 17,5% |
-| Acima de 720 dias | 15,0% |
+```text
+10.000 × 15%
 
-As particularidades serão estudadas no módulo de renda fixa.
+IR apurado = R$1.500
+```
+
+A Receita mantém em 2026 a alíquota de **15% para operações comuns** e **20% para day trade**.
+
+Referência:
+
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1
+
+Mas existe outro detalhe.
 
 ---
 
-# 15. Ganho e perda em renda variável
+# 12. IRRF das operações comuns
 
-Na renda variável, normalmente trabalhamos com conceitos como:
+Nas operações comuns em bolsa existe uma pequena retenção de IR na fonte.
 
-```text
-Aquisição
-Alienação
-Custo de aquisição
-Ganho
-Perda
-```
+Atualmente:
 
-Em uma simplificação:
+**0,005% sobre o valor da venda.**
 
-```text
-Ganho = Valor líquido de alienação - Custo de aquisição
-```
+No day trade:
 
----
+**1% sobre o resultado líquido da operação.**
 
-# 16. Exemplo de ganho em ações
+Referência:
 
-Considere:
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1/retencoes
 
-```text
-Compra      R$ 40.000
-Venda       R$ 50.000
-```
-
-Ignorando custos:
-
-```text
-Ganho = 50.000 - 40.000
-
-Ganho = R$ 10.000
-```
-
-Em uma operação comum tributável, a Receita Federal informa atualmente alíquota de:
-
-```text
-15%
-```
-
-Assim:
-
-```text
-10.000 × 15% = R$ 1.500
-```
-
----
-
-# 17. IRRF em bolsa
-
-A Receita Federal publica atualmente:
-
-## Operações comuns
-
-```text
-IRRF = 0,005% sobre o valor da venda
-```
-
-## Day trade
-
-```text
-IRRF = 1% sobre o resultado líquido das operações day trade do dia
-```
-
-O IRRF pode funcionar como antecipação e ser deduzido do imposto apurado, observadas as regras aplicáveis.
-
----
-
-# 18. Exemplo de IRRF em operação comum
+Veja como é interessante.
 
 Venda:
 
 ```text
-R$ 50.000
+R$50.000
 ```
 
-IRRF:
+IRRF da operação comum:
+
+\[
+50.000 \times 0,005\%
+\]
+
+Precisamos converter:
+
+\[
+0,005\% = 0,00005
+\]
+
+Então:
+
+\[
+50.000 \times 0,00005 = 2,50
+\]
+
+Logo:
 
 ```text
-50.000 × 0,005%
+IRRF = R$2,50
 ```
 
-Como:
+Mas o imposto calculado sobre o lucro era:
 
 ```text
-0,005% = 0,00005
+R$1.500
+```
+
+Então perceba:
+
+```text
+IR devido calculado    R$1.500,00
+
+IRRF                     R$2,50
+```
+
+O IRRF não representa o imposto completo.
+
+A própria Receita explica que essa retenção pode ser deduzida do imposto apurado sobre os ganhos líquidos.
+
+Referência:
+
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1
+
+---
+
+# 13. Por que existe esse IRRF tão pequeno?
+
+É por isso que você talvez já tenha ouvido a expressão:
+
+> **“dedo-duro”.**
+
+A retenção deixa um registro tributário da operação.
+
+Mas para nós o importante tecnicamente é separar:
+
+```text
+IRRF
+```
+
+de:
+
+```text
+IR apurado
+```
+
+e:
+
+```text
+IR efetivamente recolhido.
+```
+
+São três informações diferentes.
+
+---
+
+# 14. Compare CDB e ações
+
+Agora começa a parte realmente importante.
+
+## CDB
+
+Imagine:
+
+```text
+Aplicação     R$100.000
+Resgate       R$110.000
 ```
 
 Temos:
 
 ```text
-50.000 × 0,00005 = R$ 2,50
+Principal               100.000
+Rendimento               10.000
 ```
 
-Se o ganho tributável fosse:
+Suponha, apenas para nosso exemplo, que a alíquota aplicável seja 20%.
 
 ```text
-R$ 10.000
+IR = 10.000 × 20%
+
+IR = R$2.000
 ```
 
-e o imposto apurado:
+Então:
 
 ```text
-R$ 1.500
+Valor bruto            R$110.000
+IR                    -R$  2.000
+--------------------------------
+Valor líquido          R$108.000
 ```
 
-teríamos:
+Aqui a instituição financeira realiza a retenção correspondente na fonte.
 
-```text
-IR apurado      R$ 1.500,00
-IRRF            R$     2,50
-```
+Para aplicações de renda fixa em geral, a Receita mantém a estrutura regressiva que estudaremos detalhadamente na Aula 2.
 
-O IRRF de R$ 2,50 **não representa o imposto total da operação**.
+Referência:
+
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2025
 
 ---
 
-# 19. Custo de aquisição
+# 15. Ação
 
-O custo de aquisição é fundamental na renda variável.
-
-Não basta armazenar:
+Agora:
 
 ```text
-Quantidade
-Preço unitário
-```
-
-É necessário considerar os elementos que compõem o custo conforme as regras aplicáveis.
-
-Exemplo simplificado:
-
-```text
-Compra                    R$ 40.000
-Custos relacionados       R$    100
------------------------------------
-Custo de aquisição        R$ 40.100
-```
-
-Venda:
-
-```text
-Valor bruto               R$ 50.000
-Custos da venda           R$    100
------------------------------------
-Valor líquido             R$ 49.900
+Compra      R$100.000
+Venda       R$110.000
 ```
 
 Ganho:
 
 ```text
-49.900 - 40.100 = R$ 9.800
+R$10.000
 ```
 
-Portanto:
+Se for uma operação comum tributável:
 
 ```text
-Ganho tributável != simplesmente preço de venda - preço bruto de compra
+10.000 × 15%
+
+IR = R$1.500
 ```
+
+Mas há uma diferença operacional importante.
+
+A corretora não simplesmente retém os R$1.500 inteiros daquela venda.
+
+Ela realiza a retenção de IRRF prevista para a operação, enquanto o contribuinte apura seus ganhos líquidos no período. A Receita inclusive disponibiliza atualmente o **ReVar** para auxiliar na apuração da renda variável e geração do DARF.
+
+Referência:
+
+https://www.gov.br/pt-br/servicos/apurar-imposto-sobre-renda-variavel
+
+Veja a mudança de responsabilidade:
+
+### Renda fixa
+
+```text
+Evento
+ ↓
+Fonte pagadora calcula/retem
+ ↓
+Cliente recebe líquido
+```
+
+### Bolsa
+
+```text
+Operações
+ ↓
+Corretora informa/retem IRRF
+ ↓
+Ganhos e perdas são apurados
+ ↓
+Imposto mensal é determinado
+ ↓
+Contribuinte recolhe o necessário
+```
+
+Essa diferença é enorme para sistemas financeiros.
 
 ---
 
-# 20. Rendimento versus ganho
+# 16. Agora introduzimos custo
 
-Essa distinção ajuda a entender os produtos.
+Até agora fizemos:
 
-## Renda fixa
+```text
+Venda - Compra
+```
 
-Pensamos normalmente em:
+Mas renda variável é um pouco mais interessante.
+
+A Receita considera despesas efetivamente pagas, como corretagem, liquidação e emolumentos, na determinação do ganho líquido: despesas da compra podem compor o custo e despesas da venda podem reduzir o valor líquido da alienação.
+
+Referência:
+
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1
+
+Imagine:
+
+```text
+Compra                     R$40.000
+Custos da compra           R$   100
+```
+
+Nosso custo passa a ser:
+
+```text
+R$40.100
+```
+
+Venda:
+
+```text
+R$50.000
+```
+
+Custos da venda:
+
+```text
+R$100
+```
+
+Valor líquido da venda:
+
+```text
+R$49.900
+```
+
+Ganho:
+
+```text
+49.900 - 40.100
+
+= R$9.800
+```
+
+Não:
+
+```text
+R$10.000
+```
+
+Isso nos leva a outro conceito importante.
+
+---
+
+# 17. Custo de aquisição
+
+Para renda variável você encontrará constantemente:
+
+**custo de aquisição.**
+
+Não basta guardar:
+
+```text
+quantidade = 100
+preço = R$50
+```
+
+O sistema precisa acompanhar adequadamente o custo.
+
+Por exemplo:
+
+```text
+100 ações × R$50
+= R$5.000
+```
+
+Mais custos elegíveis:
+
+```text
+R$20
+```
+
+Então:
+
+```text
+Custo de aquisição = R$5.020
+```
+
+Quando vendermos esse ativo, precisaremos conhecer o custo correspondente para determinar o ganho.
+
+Isso vai nos levar futuramente a:
+
+**preço médio.**
+
+---
+
+# 18. Lucro não é a mesma coisa que rendimento de renda fixa
+
+Essa distinção de vocabulário ajuda muito.
+
+No CDB pensamos normalmente:
 
 ```text
 Principal
@@ -629,29 +755,41 @@ Principal
 Rendimento
 ```
 
-## Renda variável
-
-Pensamos normalmente em:
+Nas ações pensamos:
 
 ```text
-Aquisição
-↓
+Valor da alienação
+-
 Custo de aquisição
-↓
-Alienação
-↓
+=
 Ganho ou perda
 ```
 
----
+Portanto:
 
-# 21. Prejuízo
-
-Considere:
+### Renda fixa
 
 ```text
-Compra        R$ 50.000
-Venda         R$ 45.000
+Aplicação → rendimento
+```
+
+### Renda variável
+
+```text
+Aquisição → alienação → ganho/perda
+```
+
+Essa diferença conceitual aparecerá constantemente no código e nos bancos de dados financeiros.
+
+---
+
+# 19. Prejuízo
+
+Agora temos outro cenário.
+
+```text
+Compra     R$50.000
+Venda      R$45.000
 ```
 
 Resultado:
@@ -660,307 +798,59 @@ Resultado:
 45.000 - 50.000 = -5.000
 ```
 
-Logo:
+Temos:
 
 ```text
-Prejuízo = R$ 5.000
+Prejuízo = R$5.000
 ```
 
-Em determinadas situações, perdas podem ser compensadas com ganhos futuros, observadas:
+Em determinadas condições esse prejuízo poderá ser compensado contra ganhos futuros da mesma categoria tributária.
 
-- a modalidade da operação;
-- o período;
-- as regras legais;
-- a segregação entre categorias tributárias.
+A Receita explicitamente informa que perdas podem ser usadas na compensação de ganhos futuros, observadas as regras aplicáveis.
 
-A Receita Federal mantém campos específicos para informação de prejuízos anteriores em renda variável.
+Referência:
+
+https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1
+
+Isso introduz uma característica extremamente importante:
+
+> Tributação nem sempre depende apenas da operação atual.
+
+Pode existir **estado tributário acumulado**.
 
 ---
 
-# 22. Estado tributário acumulado
+# 20. Pense como desenvolvedor agora
 
-Uma das principais diferenças entre um cálculo simples e um sistema tributário real é que o imposto nem sempre depende apenas da operação atual.
-
-Um cálculo pode depender de:
-
-```text
-Operação atual
-+
-Outras operações do mês
-+
-Ganhos acumulados
-+
-Perdas acumuladas
-+
-IRRF acumulado
-+
-Tipo de operação
-+
-Custos
-+
-Isenções
-```
-
-Isso significa que o domínio possui **estado**.
-
----
-
-# 23. Período de apuração
-
-Considere um mês com:
-
-```text
-Operação A      +R$ 10.000
-Operação B      -R$  4.000
-```
-
-Resultado líquido simplificado:
-
-```text
-R$ 6.000
-```
-
-Dependendo das regras aplicáveis, as operações precisam ser analisadas conjuntamente dentro do período de apuração.
-
-Em modelagem de software, isso pode levar a objetos como:
-
-```text
-TaxPeriod
-ReferenceMonth
-Gains
-Losses
-LossCarryforward
-WithholdingTax
-TaxDue
-```
-
----
-
-# 24. Provisão versus realização
-
-Considere uma posição:
-
-```text
-Aplicação             R$ 100.000
-Valor atualizado      R$ 110.000
-```
-
-O sistema pode exibir um imposto estimado:
-
-```text
-IR estimado           R$ 2.000
-```
-
-e um saldo líquido estimado:
-
-```text
-Saldo líquido         R$ 108.000
-```
-
-Isso não significa necessariamente que o imposto já foi efetivamente retido.
-
-Podemos ter:
-
-```text
-Imposto provisionado / estimado
-```
-
-e:
-
-```text
-Imposto realizado / retido
-```
-
-São conceitos diferentes.
-
----
-
-# 25. Cinco valores que não devem ser misturados
-
-Em uma aplicação financeira, diferencie sempre:
-
-```text
-1. Principal
-2. Saldo bruto
-3. Rendimento bruto
-4. Imposto
-5. Saldo líquido
-```
-
-Exemplo:
-
-```text
-Principal                  R$ 100.000
-Rendimento bruto           R$  10.000
--------------------------------------
-Saldo bruto                R$ 110.000
-
-IR                         R$   2.000
--------------------------------------
-Saldo líquido              R$ 108.000
-```
-
-E:
-
-```text
-Rendimento líquido = R$ 8.000
-```
-
----
-
-# 26. Árvore de decisão tributária
-
-```text
-                 Houve rendimento ou ganho?
-                         │
-                ┌────────┴────────┐
-               NÃO               SIM
-                                  │
-                           Houve fato gerador?
-                                  │
-                         ┌────────┴────────┐
-                        NÃO               SIM
-                                           │
-                                    É tributável?
-                                           │
-                                  ┌────────┴────────┐
-                                 NÃO               SIM
-                                                    │
-                                            Base de cálculo
-                                                    │
-                                                Alíquota
-                                                    │
-                                            Imposto apurado
-                                                    │
-                                      Existe IRRF / antecipação?
-                                                    │
-                                              Compensações
-                                                    │
-                                             Imposto devido
-                                                    │
-                                             Resultado líquido
-```
-
----
-
-# 27. Exemplo completo — CDB
-
-Considere:
-
-```text
-Aplicação     R$ 50.000
-Resgate       R$ 56.000
-```
-
-Rendimento:
-
-```text
-56.000 - 50.000 = R$ 6.000
-```
-
-Suponha alíquota aplicável de:
-
-```text
-17,5%
-```
-
-IR:
-
-```text
-6.000 × 0,175 = R$ 1.050
-```
-
-Rendimento líquido:
-
-```text
-6.000 - 1.050 = R$ 4.950
-```
-
-Resgate líquido:
-
-```text
-50.000 + 4.950 = R$ 54.950
-```
-
-Fluxo:
-
-```text
-Principal               R$ 50.000
-        ↓
-Rendimento              R$  6.000
-        ↓
-Base tributável         R$  6.000
-        ↓
-IR                      R$  1.050
-        ↓
-Rendimento líquido      R$  4.950
-        ↓
-Resgate líquido         R$ 54.950
-```
-
----
-
-# 28. Exemplo completo — ações
-
-Considere:
-
-```text
-Compra       R$ 50.000
-Venda        R$ 56.000
-```
-
-Suponha:
-
-- operação comum;
-- tributável;
-- sem custos, apenas para simplificação.
-
-Ganho:
-
-```text
-R$ 6.000
-```
-
-Alíquota:
-
-```text
-15%
-```
-
-Imposto apurado:
-
-```text
-6.000 × 15% = R$ 900
-```
-
-IRRF:
-
-```text
-56.000 × 0,005%
-= 56.000 × 0,00005
-= R$ 2,80
-```
-
-Logo:
-
-```text
-IR apurado      R$ 900,00
-IRRF            R$   2,80
-```
-
-São valores com finalidades diferentes.
-
----
-
-# 29. Modelagem de domínio
-
-Uma implementação ingênua poderia começar assim:
+Imagine uma função:
 
 ```csharp
 decimal CalcularImposto(Operacao operacao)
 ```
 
-Mas um motor tributário real pode precisar de muito mais contexto:
+Parece suficiente.
+
+Mas não é.
+
+Porque para renda variável poderíamos precisar saber:
+
+```text
+Operação atual
++
+outras operações do mês
++
+prejuízos acumulados
++
+IRRF acumulado
++
+tipo de operação
++
+custos
++
+isenções aplicáveis
+```
+
+Logo, um domínio mais realista começa a parecer:
 
 ```text
 Investor
@@ -973,137 +863,406 @@ Investor
       └── TaxDue
 ```
 
-Além disso:
+Já estamos saindo de:
 
 ```text
-Instrument
-Position
-Transaction
-TaxEvent
-TaxRule
-TaxBase
-TaxRate
-TaxCalculation
-WithholdingTax
-Settlement
-Income
-CorporateAction
+if produto == ação
+    imposto = lucro * 0.15
 ```
 
-A tributação deve ser tratada como **regra de domínio**, e não apenas como um conjunto de `if` e `switch`.
+e entrando em modelagem de domínio.
 
 ---
 
-# 30. Checklist para analisar qualquer operação
+# 21. Outro conceito importante: período de apuração
 
-Ao receber uma operação, responda:
+Imagine:
+
+### Janeiro
 
 ```text
-[ ] Qual é o produto?
-[ ] Quem é o investidor?
-[ ] Qual é a data da aquisição?
-[ ] Qual foi o evento?
-[ ] Houve rendimento, ganho ou perda?
-[ ] Houve fato gerador?
-[ ] Existe isenção?
-[ ] Qual é a base de cálculo?
-[ ] Qual é a alíquota?
-[ ] Existe IRRF?
-[ ] Existem prejuízos compensáveis?
-[ ] Qual é o período de apuração?
-[ ] Quem deve reter?
-[ ] Quem deve recolher?
-[ ] Qual é o valor bruto?
-[ ] Qual é o valor líquido?
-[ ] O imposto está provisionado ou realizado?
+Operação A     +R$10.000
+Operação B     -R$ 4.000
 ```
 
----
-
-# 31. Resumo
-
-O conceito central desta parte é:
-
-> **Tributação de investimentos não começa pela alíquota. Começa pela identificação do produto, do investidor, do evento e do fato gerador.**
-
-A cadeia fundamental é:
+Resultado líquido:
 
 ```text
-Investimento
-   ↓
-Posição
-   ↓
-Rendimento / ganho / perda
-   ↓
-Evento
-   ↓
-Fato gerador
-   ↓
-Base de cálculo
-   ↓
-Alíquota
-   ↓
-Imposto apurado
-   ↓
-IRRF
-   ↓
-Compensações
-   ↓
-Imposto devido
-   ↓
-Resultado líquido
+R$6.000
 ```
 
-Essa estrutura será utilizada em todos os módulos seguintes.
+Não faria sentido simplesmente calcular:
+
+```text
+10.000 × 15%
+```
+
+e ignorar a operação B, quando a legislação permite aquela compensação.
+
+O cálculo precisa observar o **período de apuração e as regras de compensação**.
+
+Por isso sistemas financeiros frequentemente trabalham com conceitos semelhantes a:
+
+```text
+TaxPeriod
+ReferenceMonth
+AccumulatedLoss
+```
 
 ---
 
-# Referências oficiais
+# 22. Provisão × realização
 
-## Receita Federal — Tributação de 2026
+Esse conceito é especialmente relevante para sistemas.
 
-Contém, entre outras informações, as alíquotas de aplicações de renda fixa e fundos.
+Imagine novamente:
 
-https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2026
+```text
+Aplicação      R$100.000
+Saldo atual    R$110.000
+```
 
-## Receita Federal — Rendimentos do Capital
+Existem R$10.000 de rendimento econômico.
 
-Apresenta informações sobre aplicações financeiras, renda fixa e renda variável.
+Um sistema pode estimar:
 
-https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/preenchimento/manual-mir/rendimentos/rendimentos-do-capital
+```text
+IR estimado = R$2.000
+```
 
-## Receita Federal — Retenções em operações de bolsa
+para exibir:
 
-Informações oficiais sobre IRRF em operações comuns e day trade.
+```text
+Saldo bruto      R$110.000
+Saldo líquido    R$108.000
+```
 
-https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1/retencoes
+Mas isso não significa necessariamente que o imposto já tenha sido efetivamente retido.
 
-## Receita Federal — Bens Financeiros
+Podemos ter:
 
-Classificação de aplicações, investimentos, fundos e outros ativos financeiros.
+```text
+IR provisionado/estimado
+```
 
-https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/preenchimento/manual-mir/patrimonio/bens-financeiros
+versus:
 
-## Receita Federal — Eventos do Patrimônio
+```text
+IR realizado/retido
+```
 
-Eventos relacionados a investimentos e rendimentos, incluindo aplicações isentas.
-
-https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/preenchimento/manual-mir/patrimonio/eventos-do-patrimonio
+Essa diferença é muito importante em carteiras e relatórios.
 
 ---
 
-## Aviso de manutenção
+# 23. Cinco valores que você nunca deve misturar
 
-Regras tributárias podem sofrer alterações.
+Imagine um investimento.
 
-Ao utilizar este material como referência para:
+```text
+1. Principal
 
-- sistemas produtivos;
-- motores de cálculo;
-- conciliações fiscais;
-- relatórios oficiais;
-- informes de rendimentos;
+2. Saldo bruto
 
-sempre valide a regra contra a legislação e a documentação oficial vigente.
+3. Rendimento bruto
 
-**Última revisão deste material: outubro de 2026.**
+4. Imposto
+
+5. Saldo líquido
+```
+
+Exemplo:
+
+```text
+Principal                  100.000
+Rendimento bruto            10.000
+----------------------------------
+Saldo bruto                110.000
+
+IR                           2.000
+----------------------------------
+Saldo líquido              108.000
+```
+
+E:
+
+```text
+Rendimento líquido = 8.000
+```
+
+Então:
+
+\[
+SaldoLiquido =
+Principal + RendimentoLiquido
+\]
+
+---
+
+# 24. Mas cuidado com “saldo”
+
+No trabalho, quando alguém disser:
+
+> “Qual é o saldo do cliente?”
+
+A primeira pergunta mental deve ser:
+
+**Qual saldo?**
+
+Pode ser:
+
+```text
+Saldo contábil
+Saldo financeiro
+Saldo bruto
+Saldo líquido
+Saldo disponível
+Saldo bloqueado
+Saldo em liquidação
+Saldo de custódia
+```
+
+Em sistemas financeiros, “saldo” sozinho quase nunca é informação suficiente.
+
+---
+
+# 25. Nossa primeira árvore de decisão tributária
+
+Quando você receber qualquer produto, pense:
+
+```text
+               Houve rendimento/ganho?
+                       │
+              ┌────────┴────────┐
+             NÃO               SIM
+                              │
+                       Houve fato gerador?
+                              │
+                     ┌────────┴───────┐
+                    NÃO              SIM
+                                      │
+                               É tributável?
+                                      │
+                           ┌──────────┴────────┐
+                          NÃO                 SIM
+                                              │
+                                      Base de cálculo
+                                              │
+                                           Alíquota
+                                              │
+                                        Imposto devido
+                                              │
+                                    Existe IRRF/antecipação?
+```
+
+Isso é muito melhor do que decorar centenas de regras isoladas.
+
+---
+
+# 26. Exercício resolvido — CDB
+
+Imagine:
+
+```text
+Aplicação:     R$50.000
+Resgate:       R$56.000
+```
+
+Primeiro:
+
+\[
+56.000 - 50.000 = 6.000
+\]
+
+Rendimento:
+
+```text
+R$6.000
+```
+
+Suponha alíquota aplicável de:
+
+```text
+17,5%
+```
+
+Então:
+
+\[
+6.000 \times 0,175 = 1.050
+\]
+
+IR:
+
+```text
+R$1.050
+```
+
+Rendimento líquido:
+
+```text
+6.000 - 1.050
+= R$4.950
+```
+
+Valor líquido:
+
+```text
+50.000 + 4.950
+= R$54.950
+```
+
+Modelo:
+
+```text
+Principal               50.000
+      ↓
+Rendimento               6.000
+      ↓
+Base tributável          6.000
+      ↓
+IR                        1.050
+      ↓
+Rendimento líquido       4.950
+      ↓
+Resgate líquido         54.950
+```
+
+---
+
+# 27. Exercício resolvido — ações
+
+Agora:
+
+```text
+Compra        R$50.000
+Venda         R$56.000
+```
+
+Suponha operação comum tributável e, para simplificar, sem despesas.
+
+Ganho:
+
+```text
+R$6.000
+```
+
+Alíquota:
+
+```text
+15%
+```
+
+IR apurado:
+
+\[
+6.000 \times 0,15 = 900
+\]
+
+Resultado:
+
+```text
+IR apurado = R$900
+```
+
+Mas IRRF sobre a venda:
+
+\[
+56.000 \times 0,005\%
+\]
+
+\[
+56.000 \times 0,00005 = 2,80
+\]
+
+Então temos dois números:
+
+```text
+IR apurado      R$900,00
+IRRF              R$2,80
+```
+
+E não:
+
+```text
+IR = R$2,80
+```
+
+Esse é exatamente o tipo de distinção que você precisa dominar no trabalho.
+
+---
+
+# 28. O que você deve sair sabendo desta aula
+
+Se alguém disser:
+
+> “Esse investimento rendeu R$ 10 mil.”
+
+Você ainda **não tem informação suficiente para calcular o imposto**.
+
+Precisamos descobrir:
+
+```text
+Qual produto?
+Quem é o investidor?
+Qual regime tributário?
+Qual foi o evento?
+Quando ocorreu?
+Houve fato gerador?
+Qual é a base?
+Qual é a alíquota?
+Há isenção?
+Existe IRRF?
+Existem perdas compensáveis?
+Quem é responsável pela retenção/recolhimento?
+```
+
+Essa é a mentalidade correta.
+
+---
+
+# Seu mapa mental da Aula 1
+
+Guarde este fluxo:
+
+```text
+                    INVESTIMENTO
+                         │
+                         ▼
+                       SALDO
+                         │
+                         ▼
+                  RENDIMENTO/GANHO
+                         │
+                         ▼
+                      EVENTO
+                         │
+                         ▼
+                   FATO GERADOR
+                         │
+                         ▼
+                  BASE DE CÁLCULO
+                         │
+                         ▼
+                     ALÍQUOTA
+                         │
+                         ▼
+                 IMPOSTO APURADO
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+            IRRF              COMPENSAÇÕES
+              │                     │
+              └──────────┬──────────┘
+                         ▼
+                 IMPOSTO A PAGAR
+                         │
+                         ▼
+                 RESULTADO LÍQUIDO
+```
+
+E a principal conclusão da Aula 1 é:
+
+> **Tributação de investimentos não começa pela alíquota. Começa identificando produto, evento, rendimento/ganho e fato gerador.**
+
+Na **Aula 2**, entramos de vez em **renda fixa**, construindo uma matriz para **CDB, RDB, Tesouro Direto, LCI, LCA, CRI, CRA e debêntures**, incluindo tabela regressiva, IOF, isenções, vencimento, resgate e exemplos de cálculo. Será nosso primeiro módulo realmente focado em regras produto por produto.
